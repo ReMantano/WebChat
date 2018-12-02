@@ -1,0 +1,38 @@
+#status{
+	margin: 0 auto;
+	width: 700px;
+	height: 500px;
+	overflow-y: auto;
+
+}
+
+
+#ChatForm{
+	position: fixed; 
+	top: 80%; 
+	left: 25%;
+}
+
+#ChatTextField{
+	width: 700px;
+}
+
+.leftMessage{
+	background-color: #0D8800;
+}
+
+.rightMessage{
+	margin-left: 70%;
+	background-color: #133AAC;
+}
+
+.messageBlock{
+	color: white;
+	border-radius: 25px;
+	text-align: center;
+	width: 30%;
+}
+
+::-webkit-scrollbar {
+    background: white; 
+}
