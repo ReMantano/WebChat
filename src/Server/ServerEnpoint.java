@@ -49,6 +49,7 @@ public class ServerEnpoint {
 
     @OnClose
     public void closeConnection(Session session){
+        systemCommand.checkCommand(session,"\\exit");
         log.info("Disconnect:" + session.toString() );
     }
     
