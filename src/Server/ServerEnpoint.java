@@ -9,59 +9,61 @@ import java.util.Map;
 
 import Until.Profile;
 import Until.Status;
+import org.apache.log4j.Logger;
 
-import javax.websocket.OnError;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
+import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 
 @ServerEndpoint(value="/web")
 public class ServerEnpoint {
-    public static Map<Session,Profile> connectionMap = Collections.synchronizedMap(new HashMap<Session,Profile>());
+    static Map<Session,Profile> connectionMap = Collections.synchronizedMap(new HashMap<Session,Profile>());
     private static SystemCommand systemCommand = new SystemCommand();
-    public static List<Session> agentList = Collections.synchronizedList(new ArrayList<Session>());
-    public static List<Session> clientWaitList = Collections.synchronizedList(new ArrayList<Session>());
+    static List<Session> agentList = Collections.synchronizedList(new ArrayList<Session>());
+    static List<Session> clientWaitList = Collections.synchronizedList(new ArrayList<Session>());
+    static Logger log = Logger.getLogger(ServerEnpoint.class);
+
     
 
     @OnOpen
-    public void open(Session session ) throws IOException {
-        Profile profiel = new Profile(session);
-        connectionMap.put(session, profiel);
-        System.out.println(session.getRequestURI());
-        System.out.println(session.getPathParameters());
-        session.getBasicRemote().sendText("Id: " + session.getId() + "\tСоединение установленно");
+    public void open(Session session )  {
+        sendText(session,"Id: " + session.getId() + "\tСоединение установленно");
+        log.info("Connection: " + session.toString());
     }
 
     @OnMessage
-    public void message(Session session, String message) throws IOException {
+    public void message(Session session, String message)  {
     	
         if (!systemCommand.checkCommand(session,message)) {
-            if (connectionMap.get(session).getName() != null)
+            if (connectionMap.containsKey(session))
                 send(session, message);
             else
-            	session.getBasicRemote().sendText("Вы не зарегистрированны");
+            	sendText(session,"Вы не зарегистрированны");
         }else if (agentList.size() > 0)
                 createChatWithWaitClient();
     }
     
     @OnError
     public void eror(Session session , Throwable throwable) {
-    	System.out.println(session + "\n" + throwable.getMessage());
+    	log.error(session.toString(),throwable);
+    }
+
+    @OnClose
+    public void closeConnection(Session session){
+        log.info("Disconnect:" + session.toString() );
     }
     
-    private void send(Session session, String message) throws IOException{
+    private void send(Session session, String message) {
 
         Profile prof = connectionMap.get(session);
 
         if (prof.getConnection() != null)
-                prof.getConnection().getBasicRemote().sendText(prof.getName() + ": " + message);
+                sendText(prof.getConnection(),prof.getName() + ": " + message);
         else
             if (prof.getStatus() == Status.AGENT)
-            	session.getBasicRemote().sendText("Дождитесь клиента");
+            	sendText(session,"Дождитесь клиента");
         else
             if (!connectionClientToAgent(prof,message)) {
-            	session.getBasicRemote().sendText("Нет свободных агентов");
+            	sendText(session,"Нет свободных агентов");
                 prof.addMessageInVoid(message);
                 if (!clientWaitList.contains(session))
                     clientWaitList.add(session);
@@ -69,13 +71,13 @@ public class ServerEnpoint {
 
     }
 
-    private boolean connectionClientToAgent(Profile prof, String message) throws IOException{
+    private boolean connectionClientToAgent(Profile prof, String message){
         if (agentList.size() > 0) {
             Session agent = agentList.remove(0);
             prof.setConnection(agent);
 
             connectionMap.get(agent).setConnection(prof.getSelfWriter());
-            agent.getBasicRemote().sendText(prof.getName() + ": " + message);
+            sendText(agent,prof.getName() + ": " + message);
 
             return true;
         }
@@ -84,7 +86,7 @@ public class ServerEnpoint {
 
     }
 
-    private void createChatWithWaitClient() throws IOException{
+    private void createChatWithWaitClient() {
         if (clientWaitList.size() > 0) {
             Session client = clientWaitList.remove(0);
             Session agent = agentList.remove(0);
@@ -94,12 +96,21 @@ public class ServerEnpoint {
             Profile clientProfile = connectionMap.get(client);
             clientProfile.setConnection(agent);
 
-            client.getBasicRemote().sendText("Аген " + agentProfile.getName() + "готов r беседе");
-            agent.getBasicRemote().sendText(clientProfile.getMessageInVoid() +
-                    "\nВы переписываетесь с клиентом " +
-                    clientProfile.getName());
+
+            sendText(client,"Аген " + agentProfile.getName() + "готов r беседе");
+            sendText(agent,clientProfile.getMessageInVoid() +
+                                "\nВы переписываетесь с клиентом " +
+                                clientProfile.getName());
 
             clientProfile.clearMessageInVoid();
+        }
+    }
+
+    static void sendText(Session session, String text){
+        try{
+            session.getBasicRemote().sendText(text);
+        }catch (IOException e){
+            log.error(e);
         }
     }
 

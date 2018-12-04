@@ -9,7 +9,7 @@ import Until.Status;
 
 public class LeaveUserFromChat {
 
-    public synchronized void leave(Session session) throws IOException{
+    public synchronized void leave(Session session)  {
         Profile prof = ServerEnpoint.connectionMap.get(session);
         Session temp = prof.getConnection();
 
@@ -18,8 +18,8 @@ public class LeaveUserFromChat {
         prof.setConnection(null);
         ServerEnpoint.connectionMap.get(temp).setConnection(null);
 
-        temp.getBasicRemote().sendText(name + " вышел из чата");
-        session.getBasicRemote().sendText("Вы вышли из чата");
+        ServerEnpoint.sendText(temp,name + " вышел из чата");
+        ServerEnpoint.sendText(session,"Вы вышли из чата");
 
         if (prof.getStatus() == Status.AGENT)
         	ServerEnpoint.agentList.add(session);

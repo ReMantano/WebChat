@@ -13,26 +13,27 @@ import javax.websocket.Session;
 
 public class RegisteredNewUser {
 
-    public synchronized void registered(String message, Session session) throws IOException{
+    public synchronized void registered(String message, Session session) {
         int length = Command.REGISTER.name().length();
         String temp = message.substring(2 + length);
         ArrayList<String> commandList = new ArrayList<String>(Arrays.asList(temp.split(" ")));
         String status = commandList.remove(0).toUpperCase();
         String name = arrayListToString(commandList);
 
-        Profile prof = ServerEnpoint.connectionMap.get(session);
+        Profile prof = new Profile(session);
+        prof.setName(name);
         
 
         try{
             addNewUser(prof, Status.valueOf(status));
         }catch (IllegalArgumentException e){
-        	session.getBasicRemote().sendText("Вы указали неправильный статус");
+        	ServerEnpoint.sendText(session,"Вы указали неправильный статус");
             return;
         }
-        //ServerEnpoint.connectionMap.put(session,prof);
-        prof.setName(name);
-        session.getBasicRemote().sendText(name + "вы зарегистрированы как " + prof.getStatus().toString().toLowerCase());
-        //Server.log.info(name + "зарегистрировался как " + prof.getStatus().toString());
+
+        ServerEnpoint.connectionMap.put(session,prof);
+        ServerEnpoint.sendText(session,name + "вы зарегистрированы как " + prof.getStatus().toString().toLowerCase());
+        ServerEnpoint.log.info(name + "зарегистрировался как " + prof.getStatus().toString());
     }
 
     private void addNewUser(Profile prof, Status status){

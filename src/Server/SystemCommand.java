@@ -14,14 +14,14 @@ public class SystemCommand {
     private static RegisteredNewUser commandRegister = new RegisteredNewUser();
     private static LeaveUserFromChat commandLeave = new LeaveUserFromChat();
 
-    public boolean checkCommand(Session session, String message) throws IOException{
+    public boolean checkCommand(Session session, String message)  {
         Command status = commandIdentifier.checkCommand(message);
         switch(status){
             case REGISTER:{
-                if (ServerEnpoint.connectionMap.get(session).getName() == null)
+                if (!ServerEnpoint.connectionMap.containsKey(session))
                     commandRegister.registered(message,session);
                 else
-                	session.getBasicRemote().sendText("Вы зарегистрированны");
+                	ServerEnpoint.sendText(session,"Вы зарегистрированны");
                 return true;
             }
             case LEAVE:{
@@ -29,7 +29,7 @@ public class SystemCommand {
                 if (prof != null && prof.getConnection() != null)
                     commandLeave.leave(session);
                 else
-                	session.getBasicRemote().sendText("У вас нет собеседника");
+                	ServerEnpoint.sendText(session,"У вас нет собеседника");
 
                 return true;
             }
@@ -43,7 +43,7 @@ public class SystemCommand {
                 return true;
             }
             case UNKNOWN:{
-            	session.getBasicRemote().sendText("Неизвестная команда");
+            	ServerEnpoint.sendText(session,"Неизвестная команда");
                 return true;
             }
         }
@@ -54,6 +54,5 @@ public class SystemCommand {
     	ServerEnpoint.agentList.remove(session);
     	ServerEnpoint.clientWaitList.remove(session);
     	ServerEnpoint.connectionMap.remove(session);
-        //mWriter.close();
     }
 }

@@ -37,8 +37,7 @@ public class ClientEndpointChat {
             try {
                 session.close();
             } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                Client.log.error(e);
             }
         }
 	}

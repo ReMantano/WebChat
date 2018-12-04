@@ -19,18 +19,20 @@
 
 .leftMessage{
 	background-color: #0D8800;
+	color: white;
 }
 
 .rightMessage{
 	margin-left: 70%;
 	background-color: #133AAC;
+	color: white;
 }
 
 .messageBlock{
-	color: white;
 	border-radius: 25px;
 	text-align: center;
 	width: 30%;
+	margin-bottom: 15px;
 }
 
 ::-webkit-scrollbar {

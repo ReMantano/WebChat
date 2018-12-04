@@ -1,5 +1,7 @@
 package Client;
 
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -8,6 +10,8 @@ import java.util.Scanner;
 import javax.websocket.DeploymentException;
 
 public class Client {
+
+	static Logger log = Logger.getLogger(Client.class);
 
 	public static void main(String args[]) {
 		
@@ -27,16 +31,9 @@ public class Client {
 			
 			client.closeConnection();
 			
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (DeploymentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (URISyntaxException|DeploymentException|IOException e) {
+			log.error(e);
+			System.out.println("Сервер недоступен.");
 		}
-		
 	}
 }
