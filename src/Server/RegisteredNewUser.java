@@ -11,9 +11,9 @@ import java.util.List;
 
 import javax.websocket.Session;
 
-public class RegisteredNewUser {
+class RegisteredNewUser {
 
-    public synchronized void registered(String message, Session session) {
+    synchronized void registered(String message, Session session) {
         int length = Command.REGISTER.name().length();
         String temp = message.substring(2 + length);
         ArrayList<String> commandList = new ArrayList<String>(Arrays.asList(temp.split(" ")));
@@ -31,7 +31,7 @@ public class RegisteredNewUser {
             return;
         }
 
-        ServerEnpoint.connectionMap.put(session,prof);
+        ServerEnpoint.setNewConnection(session,prof);
         ServerEnpoint.sendText(session,name + "вы зарегистрированы как " + prof.getStatus().toString().toLowerCase());
         ServerEnpoint.log.info(name + "зарегистрировался как " + prof.getStatus().toString());
     }
@@ -42,7 +42,7 @@ public class RegisteredNewUser {
         else
         {
             prof.setStatus(Status.AGENT);
-            ServerEnpoint.agentList.add(prof.getSelfWriter());
+            ServerEnpoint.addAgent(prof.getSelfWriter());
         }
     }
 

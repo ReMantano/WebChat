@@ -1,11 +1,6 @@
 package Server;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import Until.Profile;
 import Until.Status;
@@ -16,10 +11,10 @@ import javax.websocket.server.ServerEndpoint;
 
 @ServerEndpoint(value="/web")
 public class ServerEnpoint {
-    static Map<Session,Profile> connectionMap = Collections.synchronizedMap(new HashMap<Session,Profile>());
+    private static Map<Session,Profile> connectionMap = Collections.synchronizedMap(new HashMap<Session,Profile>());
     private static SystemCommand systemCommand = new SystemCommand();
-    static List<Session> agentList = Collections.synchronizedList(new ArrayList<Session>());
-    static List<Session> clientWaitList = Collections.synchronizedList(new ArrayList<Session>());
+    private static List<Session> agentList = Collections.synchronizedList(new ArrayList<Session>());
+    private static List<Session> clientWaitList = Collections.synchronizedList(new ArrayList<Session>());
     static Logger log = Logger.getLogger(ServerEnpoint.class);
 
     
@@ -38,12 +33,12 @@ public class ServerEnpoint {
                 send(session, message);
             else
             	sendText(session,"Вы не зарегистрированны");
-        }else if (agentList.size() > 0)
-                createChatWithWaitClient();
+        }else
+            createChatWithWaitClient();
     }
     
     @OnError
-    public void eror(Session session , Throwable throwable) {
+    public void error(Session session , Throwable throwable) {
     	log.error(session.toString(),throwable);
     }
 
@@ -73,8 +68,9 @@ public class ServerEnpoint {
     }
 
     private boolean connectionClientToAgent(Profile prof, String message){
-        if (agentList.size() > 0) {
+        try {
             Session agent = agentList.remove(0);
+
             prof.setConnection(agent);
 
             connectionMap.get(agent).setConnection(prof.getSelfWriter());
@@ -82,15 +78,17 @@ public class ServerEnpoint {
 
             return true;
         }
-        else
+        catch (IndexOutOfBoundsException e){
             return false;
+        }
 
     }
 
-    private void createChatWithWaitClient() {
-        if (clientWaitList.size() > 0) {
+    private boolean createChatWithWaitClient() {
+        try{
             Session client = clientWaitList.remove(0);
             Session agent = agentList.remove(0);
+
             Profile agentProfile = connectionMap.get(agent);
 
             agentProfile.setConnection(client);
@@ -100,14 +98,22 @@ public class ServerEnpoint {
 
             sendText(client,"Аген " + agentProfile.getName() + "готов r беседе");
             sendText(agent,clientProfile.getMessageInVoid() +
-                                "\nВы переписываетесь с клиентом " +
-                                clientProfile.getName());
+                    "\nВы переписываетесь с клиентом " +
+                    clientProfile.getName());
 
             clientProfile.clearMessageInVoid();
+
+            return true;
+        }catch (IndexOutOfBoundsException e){
+            return false;
         }
+
     }
 
     static void sendText(Session session, String text){
+        if (!session.isOpen())
+            return;
+
         try{
             session.getBasicRemote().sendText(text);
         }catch (IOException e){
@@ -115,5 +121,31 @@ public class ServerEnpoint {
         }
     }
 
+    synchronized static Profile getProfileFromSession(Session session){
+        return connectionMap.get(session);
+    }
 
+    synchronized static void setNewConnection(Session session, Profile profile){
+        connectionMap.put(session,profile);
+    }
+
+    synchronized static boolean contain(Session session){
+        return connectionMap.containsKey(session);
+    }
+
+    synchronized static void removeConnection(Session session){
+        connectionMap.remove(session);
+    }
+
+    synchronized static void addAgent(Session session){
+        agentList.add(session);
+    }
+
+    synchronized static void removeAgent(Session session){
+        agentList.remove(session);
+    }
+
+    synchronized static void removeClient(Session session){
+        clientWaitList.remove(session);
+    }
 }

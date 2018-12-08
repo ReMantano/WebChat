@@ -8,24 +8,24 @@ import Until.Command;
 import Until.CommandIdentifier;
 import Until.Profile;
 
-public class SystemCommand {
+class SystemCommand {
 
     private static CommandIdentifier commandIdentifier = new CommandIdentifier();
     private static RegisteredNewUser commandRegister = new RegisteredNewUser();
     private static LeaveUserFromChat commandLeave = new LeaveUserFromChat();
 
-    public boolean checkCommand(Session session, String message)  {
+    boolean checkCommand(Session session, String message)  {
         Command status = commandIdentifier.checkCommand(message);
         switch(status){
             case REGISTER:{
-                if (!ServerEnpoint.connectionMap.containsKey(session))
+                if (!ServerEnpoint.contain(session))
                     commandRegister.registered(message,session);
                 else
                 	ServerEnpoint.sendText(session,"Вы зарегистрированны");
                 return true;
             }
             case LEAVE:{
-                Profile prof =  ServerEnpoint.connectionMap.get(session);
+                Profile prof =  ServerEnpoint.getProfileFromSession(session);
                 if (prof != null && prof.getConnection() != null)
                     commandLeave.leave(session);
                 else
@@ -34,7 +34,7 @@ public class SystemCommand {
                 return true;
             }
             case EXIT:{
-                Profile prof =  ServerEnpoint.connectionMap.get(session);
+                Profile prof =  ServerEnpoint.getProfileFromSession(session);
                 if (prof != null && prof.getConnection() != null)
                     commandLeave.leave(session);
 
@@ -51,8 +51,8 @@ public class SystemCommand {
     }
 
     private synchronized void exitUserFromCaht(Session session){
-    	ServerEnpoint.agentList.remove(session);
-    	ServerEnpoint.clientWaitList.remove(session);
-    	ServerEnpoint.connectionMap.remove(session);
+    	ServerEnpoint.removeAgent(session);
+    	ServerEnpoint.removeClient(session);
+    	ServerEnpoint.removeConnection(session);
     }
 }
