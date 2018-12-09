@@ -21,7 +21,7 @@ class SystemCommand {
                 if (!ServerEnpoint.contain(session))
                     commandRegister.registered(message,session);
                 else
-                	ServerEnpoint.sendText(session,"Вы зарегистрированны");
+                	ServerEnpoint.sendText(session,"Р’С‹ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅС‹");
                 return true;
             }
             case LEAVE:{
@@ -29,7 +29,7 @@ class SystemCommand {
                 if (prof != null && prof.getConnection() != null)
                     commandLeave.leave(session);
                 else
-                	ServerEnpoint.sendText(session,"У вас нет собеседника");
+                	ServerEnpoint.sendText(session,"РЈ РІР°СЃ РЅРµС‚ СЃРѕР±РµСЃРµРґРЅРёРєР°");
 
                 return true;
             }
@@ -38,21 +38,27 @@ class SystemCommand {
                 if (prof != null && prof.getConnection() != null)
                     commandLeave.leave(session);
 
-                exitUserFromCaht(session);
+                exitUserFromChat(session);
 
                 return true;
             }
             case UNKNOWN:{
-            	ServerEnpoint.sendText(session,"Неизвестная команда");
+            	ServerEnpoint.sendText(session,"РќРµРёР·РІРµСЃС‚РЅР°СЏ РєРѕРјР°РЅРґР°");
                 return true;
             }
         }
         return false;
     }
 
-    private synchronized void exitUserFromCaht(Session session){
+    private synchronized void exitUserFromChat(Session session){
     	ServerEnpoint.removeAgent(session);
     	ServerEnpoint.removeClient(session);
     	ServerEnpoint.removeConnection(session);
+
+        try {
+            session.close();
+        } catch (IOException e) {
+            ServerEnpoint.log.error(e);
+        }
     }
 }

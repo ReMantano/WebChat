@@ -12,8 +12,10 @@
         <artifactId>tomcat7-maven-plugin</artifactId>
         <version>2.2</version>
         <configuration>
+          <charset>UTF-8</charset>
+          <mode>context</mode>
           <port>8080</port>
-          <path>/</path>
+          <path>/${project.artifactId}-${project.version}</path>
         </configuration>
       </plugin>
       <plugin>
@@ -44,6 +46,18 @@
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
       <version>1.2.17</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>2.0.2-beta</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

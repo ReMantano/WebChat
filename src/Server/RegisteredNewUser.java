@@ -27,13 +27,13 @@ class RegisteredNewUser {
         try{
             addNewUser(prof, Status.valueOf(status));
         }catch (IllegalArgumentException e){
-        	ServerEnpoint.sendText(session,"Вы указали неправильный статус");
+        	ServerEnpoint.sendText(session,"Р’С‹ СѓРєР°Р·Р°Р»Рё РЅРµРїСЂР°РІРёР»СЊРЅС‹Р№ СЃС‚Р°С‚СѓСЃ");
             return;
         }
 
         ServerEnpoint.setNewConnection(session,prof);
-        ServerEnpoint.sendText(session,name + "вы зарегистрированы как " + prof.getStatus().toString().toLowerCase());
-        ServerEnpoint.log.info(name + "зарегистрировался как " + prof.getStatus().toString());
+        ServerEnpoint.sendText(session,name + "РІС‹ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅС‹ РєР°Рє " + prof.getStatus().toString().toLowerCase());
+        ServerEnpoint.log.info(name + "Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°Р»СЃСЏ РєР°Рє " + prof.getStatus().toString());
     }
 
     private void addNewUser(Profile prof, Status status){

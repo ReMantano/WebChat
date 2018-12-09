@@ -17,7 +17,7 @@ public class Client {
 		
 		URI uri;
 		try {
-			uri = new URI("ws://localhost:8080/web");
+			uri = new URI("ws://localhost:8080/WebChat-0.0.1-SNAPSHOT/web");
 			ClientEndpointChat client = new ClientEndpointChat(uri);
 			Scanner sc = new Scanner(System.in);
 			String message = "start";
@@ -33,7 +33,7 @@ public class Client {
 			
 		} catch (URISyntaxException|DeploymentException|IOException e) {
 			log.error(e);
-			System.out.println("Сервер недоступен.");
+			System.out.println("РЎРµСЂРІРµСЂ РЅРµРґРѕСЃС‚СѓРїРµРЅ.");
 		}
 	}
 }

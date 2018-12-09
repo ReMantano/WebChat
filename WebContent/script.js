@@ -1,6 +1,6 @@
 window.onload = function(){
 
-	var socket = new WebSocket("ws://localhost:8080/web");
+	var socket = new WebSocket("ws://localhost:8080/WebChat-0.0.1-SNAPSHOT/web");
 	var chatField = document.querySelector("#status");
 	var connection ;
 

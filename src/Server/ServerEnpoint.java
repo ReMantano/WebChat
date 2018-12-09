@@ -21,7 +21,7 @@ public class ServerEnpoint {
 
     @OnOpen
     public void open(Session session )  {
-        sendText(session,"Id: " + session.getId() + "\tСоединение установленно");
+        sendText(session,"Id: " + session.getId() + "\tРЎРѕРµРґРёРЅРµРЅРёРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕ");
         log.info("Connection: " + session.toString());
     }
 
@@ -32,7 +32,7 @@ public class ServerEnpoint {
             if (connectionMap.containsKey(session))
                 send(session, message);
             else
-            	sendText(session,"Вы не зарегистрированны");
+            	sendText(session,"Р’С‹ РЅРµ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅРЅС‹");
         }else
             createChatWithWaitClient();
     }
@@ -56,10 +56,10 @@ public class ServerEnpoint {
                 sendText(prof.getConnection(),prof.getName() + ": " + message);
         else
             if (prof.getStatus() == Status.AGENT)
-            	sendText(session,"Дождитесь клиента");
+            	sendText(session,"Р”РѕР¶РґРёС‚РµСЃСЊ РєР»РёРµРЅС‚Р°");
         else
             if (!connectionClientToAgent(prof,message)) {
-            	sendText(session,"Нет свободных агентов");
+            	sendText(session,"РќРµС‚ СЃРІРѕР±РѕРґРЅС‹С… Р°РіРµРЅС‚РѕРІ");
                 prof.addMessageInVoid(message);
                 if (!clientWaitList.contains(session))
                     clientWaitList.add(session);
@@ -96,9 +96,9 @@ public class ServerEnpoint {
             clientProfile.setConnection(agent);
 
 
-            sendText(client,"Аген " + agentProfile.getName() + "готов r беседе");
+            sendText(client,"РђРіРµРЅ " + agentProfile.getName() + "РіРѕС‚РѕРІ r Р±РµСЃРµРґРµ");
             sendText(agent,clientProfile.getMessageInVoid() +
-                    "\nВы переписываетесь с клиентом " +
+                    "\nР’С‹ РїРµСЂРµРїРёСЃС‹РІР°РµС‚РµСЃСЊ СЃ РєР»РёРµРЅС‚РѕРј " +
                     clientProfile.getName());
 
             clientProfile.clearMessageInVoid();
@@ -143,6 +143,10 @@ public class ServerEnpoint {
 
     synchronized static void removeAgent(Session session){
         agentList.remove(session);
+    }
+
+    synchronized static void addClient(Session session){
+        clientWaitList.add(session);
     }
 
     synchronized static void removeClient(Session session){

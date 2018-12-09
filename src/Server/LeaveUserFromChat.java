@@ -16,8 +16,8 @@ class LeaveUserFromChat {
         prof.setConnection(null);
         ServerEnpoint.getProfileFromSession(temp).setConnection(null);
 
-        ServerEnpoint.sendText(temp,name + " вышел из чата");
-        ServerEnpoint.sendText(session,"Вы вышли из чата");
+        ServerEnpoint.sendText(temp,name + " РІС‹С€РµР» РёР· С‡Р°С‚Р°");
+        ServerEnpoint.sendText(session,"Р’С‹ РІС‹С€Р»Рё РёР· С‡Р°С‚Р°");
 
         if (prof.getStatus() == Status.AGENT)
         	ServerEnpoint.addAgent(session);
