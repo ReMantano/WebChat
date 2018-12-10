@@ -17,7 +17,6 @@ public class ClientEndpointChat {
 	private Session session;
 	
 	public ClientEndpointChat(URI uri) throws DeploymentException, IOException {
-		ContainerProvider.getWebSocketContainer().toString();
 		ContainerProvider.getWebSocketContainer().connectToServer(this,uri);
 	}
 

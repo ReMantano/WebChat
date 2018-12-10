@@ -2,18 +2,13 @@ window.onload = function(){
 
 	var socket = new WebSocket("ws://localhost:8080/WebChat-0.0.1-SNAPSHOT/web");
 	var chatField = document.querySelector("#status");
-	var connection ;
-
-	socket.onopen = function(event){
-		//chatField.innerHTML = "Соединение установленно";
-		connection = true;
-	}
+	var connection = true;
 
 	socket.onclose = function(event){
 		var div = document.createElement("div");
 
 		div.innerHTML = 'соединение закрыто';
-		div.setAttribute("class","messageBlock");
+		div.setAttribute("class","systemMessage");
 		chatField.appendChild(div);
 		chatField.scrollTop = chatField.scrollHeight;
 		connection = false;
@@ -26,7 +21,7 @@ window.onload = function(){
 	socket.onerror = function(event){
 		var div = document.createElement("div");
 		div.innerHTML = "Ошибка соединения: " + event.reason;
-		div.setAttribute("class","messageBlock");
+		div.setAttribute("class","systemMessage");
 		chatField.appendChild(div);
 		chatField.scrollTop = chatField.scrollHeight;
 
