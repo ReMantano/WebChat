@@ -6,11 +6,14 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="WebChat" />
+        <module name="ConsoleClient" />
+        <module name="Server" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="WebChat" target="1.8" />
+      <module name="ConsoleClient" target="1.8" />
+      <module name="Server" target="1.8" />
+      <module name="WebChat" target="1.5" />
     </bytecodeTargetLevel>
   </component>
 </project>
