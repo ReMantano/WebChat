@@ -1,20 +1,19 @@
-#status{
-	margin: 0 auto;
-	width: 700px;
+.chatBox{
+	border: 4px double black;
+	width: 650px;
 	height: 500px;
+}
+
+
+.status{
+	margin: 0 auto;
 	overflow-y: auto;
+	height:400px;
 
 }
 
-
-#ChatForm{
-	position: fixed; 
-	top: 80%; 
-	left: 25%;
-}
-
-#ChatTextField{
-	width: 700px;
+.ChatTextField{
+	width: 99%;
 }
 
 .leftMessage{

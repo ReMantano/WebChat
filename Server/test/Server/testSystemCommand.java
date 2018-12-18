@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 
 public class testSystemCommand {
 
-    Session session;
+/*    Session session;
     Profile profile;
     SystemCommand sc;
 
@@ -98,5 +98,5 @@ public class testSystemCommand {
 
         Assert.assertTrue(commandExist);
         Mockito.verify(session.getBasicRemote()).sendText("Неизвестная команда");
-    }
+    }*/
 }

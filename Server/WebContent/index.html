@@ -2,17 +2,35 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<link rel="stylesheet" href="sheet.css" type="text/css"/>
-	<script type="text/javascript" src = "script.js"> </script> 
-	<title>Web Client</title>
+	<link rel="stylesheet" href="login.css" type="text/css"/>
+	<!script type="text/javascript" src = "script.js"> <!/script> 
+	<title>Log in</title>
 </head>
 <body>
-	<div id="status">
+	<div id="formBox">
+		<div id="container">
+			<div id="loginBox">
+				<h1 id="headText">Log in</h1>
+				<form action="WebChat.html" name="login" id="loginForm" method="GET">
+					<label>Profile: </label>
+					<input type="radio" name="profile" value="Client" checked onclick="changeVisibility('Client')">Client
+					<input type="radio" name="profile" value="Agent" onclick="changeVisibility('Agent')">Agent<br />
+					<div id="num" style="display: none;"> 
+						<label>Количество чатов: </label>
+						<input id="countChat" type="number" name="count" min="1" value="1" required ><br />
+					</div>
+					<label>Name: </label>
+					<input type="text" name= "name" id="ChatTextField"><br />
+					<input id="registerButton" type="submit" value="Register">
+				</form>
+			</div>
+		</div>
 	</div>
-		<h1 style="text-align: center;">Chat</h1>
-		<form action="#" name="chat" id="ChatForm">
-			<input type="text" name= "message" id="ChatTextField">
-			<input type="submit" value="Send">
-		</form>
+	
+	<script type="text/javascript" language="JavaScript">
+            function changeVisibility(type){
+                document.getElementById("num").style.display = type == "Agent" ? "block": "none";
+            }
+        </script>
 </body>
 </html>

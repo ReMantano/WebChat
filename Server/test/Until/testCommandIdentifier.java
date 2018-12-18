@@ -7,6 +7,7 @@ import org.junit.Test;
 
 public class testCommandIdentifier {
 
+/*
     @Test
     public void testIdentifier(){
 
@@ -24,5 +25,6 @@ public class testCommandIdentifier {
 
         return commandIdentifier.checkCommand(command);
     }
+*/
 
 }

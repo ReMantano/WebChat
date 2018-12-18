@@ -1,6 +1,7 @@
 package main.java;
 
 import org.apache.log4j.Logger;
+import org.json.simple.JSONObject;
 
 import java.io.IOException;
 import java.net.URI;
@@ -20,7 +21,7 @@ public class Client {
 	}
 
 	public static void main(String args[]) {
-		
+
 		URI uri;
 		try {
 			uri = new URI("ws://localhost:8080/Server/web");
@@ -38,13 +39,42 @@ public class Client {
 		Scanner sc = new Scanner(System.in);
 		String message = sc.nextLine();
 
+		JSONObject jObject = new JSONObject();
+		jObject.put("Size","1");
+		jObject.put("Index","0");
+
 		while(!message.equals("\\exit")) {
 			if(message.length() > 0) {
-				client.sendMessage(message);
+				fillJSONOnbject(message,jObject);
+				client.sendMessage(jObject.toJSONString());
 			}
 			message = sc.nextLine();
 		}
 
-		client.closeConnection();
+		//client.closeConnection();
+	}
+
+	private void fillJSONOnbject(String text, JSONObject object){
+		if (checkCommand(text)){
+			text = text.substring(1);
+			String[] array = text.split(" ");
+			try {
+				object.put("Command", array[0].toUpperCase());
+				object.put("Status", array[1].toUpperCase());
+				object.put("Name", array[2].toUpperCase());
+			}catch (IndexOutOfBoundsException e){
+				return;
+			}
+		}else{
+			object.put("Command","TEXT");
+			object.put("Message",text);
+		}
+	}
+
+	private boolean checkCommand(String text){
+		if(text.charAt(0) == '\\')
+			return true;
+		else
+			return false;
 	}
 }

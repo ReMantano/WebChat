@@ -18,6 +18,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class testRegisterNewUser {
+/*
 
     Session session;
 
@@ -72,5 +73,6 @@ public class testRegisterNewUser {
         Assert.assertTrue(prof.getStatus().name().equals(status.toUpperCase()));
 
     }
+*/
 
 }

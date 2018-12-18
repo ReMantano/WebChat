@@ -10,7 +10,6 @@ public class Profile {
     private String name;
     private final Session selfSession;
     private Session connection;
-    private StringBuffer sendMessageInVoid = new StringBuffer();
     private Status status;
 
     public Profile(Session selfSession){
@@ -25,7 +24,7 @@ public class Profile {
         return status;
     }
 
-    public Session getSelfWriter() {
+    public Session getSelfSession() {
         return selfSession;
     }
 
@@ -43,20 +42,6 @@ public class Profile {
 
     public void setName(String name){
         this.name = name;
-    }
-
-    public void addMessageInVoid(String message){
-        sendMessageInVoid.append(
-                name+ ": "+
-                message+ "\n");
-    }
-
-    public String getMessageInVoid(){
-        return sendMessageInVoid.toString();
-    }
-
-    public void clearMessageInVoid(){
-        sendMessageInVoid.setLength(0);
     }
 
     @Override

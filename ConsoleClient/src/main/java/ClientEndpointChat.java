@@ -1,5 +1,10 @@
 package main.java;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import java.io.IOException;
 import java.net.URI;
 
@@ -27,7 +32,17 @@ public class ClientEndpointChat {
 	
 	@OnMessage
 	public void getMessage(String message) {
-		System.out.println(message);
+	    JSONObject object = getJSONFromString(message);
+	    try {
+			JSONArray array = (JSONArray) object.get("Message");
+			for(Object ob : array){
+				System.out.print(ob);
+			}
+		}catch (ClassCastException e){
+			System.out.println(object.get("Message"));
+		}
+
+
 	}
 	
 	@OnClose
@@ -46,4 +61,14 @@ public class ClientEndpointChat {
 	public void sendMessage(String message) throws IOException {
 		session.getBasicRemote().sendText(message);
 	}
+
+    private JSONObject getJSONFromString(String jString){
+        try {
+            Object o = new JSONParser().parse(jString);
+            return (JSONObject) o;
+        } catch (ParseException e) {
+
+            return null;
+        }
+    }
 }

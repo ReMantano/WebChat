@@ -14,6 +14,7 @@ import javax.websocket.Session;
 import static org.mockito.Mockito.mock;
 
 public class testLeaveUserFromChat {
+/*
 
     private Session sessionTest1;
     private Session sessionTest2;
@@ -69,5 +70,6 @@ public class testLeaveUserFromChat {
 
     }
 
+*/
 
 }

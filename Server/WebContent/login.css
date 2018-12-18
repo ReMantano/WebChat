@@ -1,0 +1,39 @@
+#formBox{
+	display:flex;
+    align-items: center;
+    justify-content: center;
+
+
+	margin: 15% auto;
+	width: 450px;
+	height: 250px;
+	background-color: #99b3ff;
+	border-radius: 10%;
+
+
+}
+
+#headText{
+	text-align: center;
+}
+
+#registerButton{
+	margin-left: 40%;
+	margin-top: 5%;
+}
+
+#loginBox{
+	clear:both;
+	text-align:right;
+	line-height:25px;
+}
+
+label {
+	float:left;
+	padding-right:10px
+}
+#container{
+	float:left;
+	width: 400px;
+	height: 200px;
+}

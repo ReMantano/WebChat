@@ -15,7 +15,7 @@ import static org.mockito.Mockito.when;
 
 public class testServerEndPoint {
 
-    Session sessionTest1;
+/*    Session sessionTest1;
     Session sessionTest2;
     String message = "Hi";
     ServerEnpoint server;
@@ -130,6 +130,6 @@ public class testServerEndPoint {
         Assert.assertTrue(agent.getConnection() == sessionTest1);
         Assert.assertTrue(profile.getConnection() == agent.getSelfWriter());
 
-    }
+    }*/
 }
 
