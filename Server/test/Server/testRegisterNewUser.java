@@ -3,6 +3,7 @@ package Server;
 import main.java.Server.RegisteredNewUser;
 import main.java.Server.ServerEnpoint;
 import main.java.Until.Profile;
+import org.json.simple.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -18,9 +19,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class testRegisterNewUser {
-/*
 
-    Session session;
+
+    private Session session;
 
     @Before
     public void init(){
@@ -45,7 +46,7 @@ public class testRegisterNewUser {
     }
 
     @Test
-    public void testOnStatusError() throws IOException {
+    public void testStatusError() throws IOException {
         String text = "\\register unknown unknown";
         Session session = mock(Session.class);
         RemoteEndpoint.Basic basic = mock(RemoteEndpoint.Basic.class);
@@ -54,25 +55,31 @@ public class testRegisterNewUser {
 
         RegisteredNewUser register = new RegisteredNewUser();
 
-        register.registered(text, session);
+        JSONObject object  = new JSONObject();
+        object.put("Status","UNKNOWN");
 
-        Mockito.verify(session.getBasicRemote()).sendText("Вы указали неправильный статус");
+        register.registered(object, session);
+
+        Mockito.verify(session.getBasicRemote()).sendText(object.toJSONString());
     }
 
-    public void reg(String status, String name, Session session){
+    private void reg(String status, String name, Session session){
 
-        String text = "\\register " + status + " " + name;
         RegisteredNewUser register = new RegisteredNewUser();
 
-        register.registered(text, session);
+        JSONObject object  = new JSONObject();
+        object.put("Status",status);
+        object.put("Name",name);
+
+        register.registered(object, session);
 
         Profile prof = ServerEnpoint.getProfileFromSession(session);
 
-        Assert.assertTrue(prof != null);
-        Assert.assertTrue(prof.getName().equals(name + " "));
-        Assert.assertTrue(prof.getStatus().name().equals(status.toUpperCase()));
+        Assert.assertNotNull(prof);
+        Assert.assertEquals(prof.getName(),name);
+        Assert.assertEquals(prof.getStatus().name(),status.toUpperCase());
 
     }
-*/
+
 
 }

@@ -2,7 +2,11 @@ package Server;
 
 import main.java.Server.ServerEnpoint;
 import main.java.Server.SystemCommand;
+import main.java.Until.AgentProfile;
+import main.java.Until.ClientProfile;
 import main.java.Until.Profile;
+import org.json.simple.JSONObject;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -19,7 +23,7 @@ import static org.mockito.Mockito.when;
 
 public class testSystemCommand {
 
-/*    Session session;
+    Session session;
     Profile profile;
     SystemCommand sc;
 
@@ -44,35 +48,43 @@ public class testSystemCommand {
     @Test
     public void testOnRegister() throws IOException {
 
-        String message = "\\register UNKNOWN ";
+        String message = "register";
+        JSONObject object = createJSONObject(message);
+        object.put("Status", "Unknown");
         ServerEnpoint.setNewConnection(session,profile);
 
-        boolean commandExist = sc.checkCommand(session,message);
+        boolean commandExist = sc.checkCommand(session,object);
+        object.put("Message","Вы зарегистрированы");
 
         Assert.assertTrue(commandExist);
-        Mockito.verify(session.getBasicRemote()).sendText("Вы зарегистрированы");
+        Mockito.verify(session.getBasicRemote()).sendText(object.toJSONString());
 
     }
 
     @Test
     public void testOnLeave() throws IOException {
-        String message = "\\leave";
+        ServerEnpoint.setNewConnection(session,profile);
+        String message = "leave";
+        JSONObject object = createJSONObject(message);
+        object.put("Index", "0");
 
-        boolean commandExist = sc.checkCommand(session,message);
+        boolean commandExist = sc.checkCommand(session,object);
+        object.put("Message", "У вас нет собеседника");
 
         Assert.assertTrue(commandExist);
-        Mockito.verify(session.getBasicRemote()).sendText("У вас нет собеседника");
+        Mockito.verify(session.getBasicRemote()).sendText(object.toJSONString());
 
     }
 
     @Test
-    public void testOnExit() throws IOException {
-        String message = "\\exit";
+    public void testExit() throws IOException {
+        String message = "exit";
+        JSONObject object = createJSONObject(message);
         ServerEnpoint.setNewConnection(session,profile);
         ServerEnpoint.addAgent(session);
         ServerEnpoint.addClient(session);
 
-        boolean commandExist = sc.checkCommand(session,message);
+        boolean commandExist = sc.checkCommand(session,object);
 
         Assert.assertTrue(commandExist);
         Assert.assertFalse(ServerEnpoint.contain(session));
@@ -82,21 +94,48 @@ public class testSystemCommand {
     }
 
     @Test
-    public void testOnSendMessage(){
-        String message = "Hello";
+    public void testSendMessage(){
+        String message = "text";
 
-        boolean commandExist = sc.checkCommand(session,message);
+        boolean commandExist = sc.checkCommand(session,createJSONObject(message));
 
         Assert.assertFalse(commandExist);
     }
 
     @Test
-    public void testOnUnknownCommand() throws IOException {
-        String message = "\\NONE";
+    public  void testDeleteCommand(){
+        AgentProfile agent = new AgentProfile(session, 1);
+        Session temp = mock(Session.class);
+        agent.addSession(temp);
+        ServerEnpoint.setNewConnection(session,agent);
+        ServerEnpoint.setNewConnection(temp,new ClientProfile(temp));
 
-        boolean commandExist = sc.checkCommand(session,message);
+        String message = "delete";
+        JSONObject object = createJSONObject(message);
+        object.put("Index", "0");
+
+        boolean commandExist = sc.checkCommand(session,object);
 
         Assert.assertTrue(commandExist);
-        Mockito.verify(session.getBasicRemote()).sendText("Неизвестная команда");
-    }*/
+        Assert.assertEquals(((AgentProfile) ServerEnpoint.getProfileFromSession(session))
+                .getConnection(0), session);
+    }
+
+    @Test
+    public void testUnknownCommand() throws IOException {
+        String message = "NONE";
+        JSONObject object = createJSONObject(message);
+
+        boolean commandExist = sc.checkCommand(session,object);
+        object.put("Message","Неизвестная команда");
+
+        Assert.assertTrue(commandExist);
+        Mockito.verify(session.getBasicRemote()).sendText(object.toJSONString());
+    }
+
+    private JSONObject createJSONObject(String command){
+        JSONObject object = new JSONObject();
+        object.put("Command", command.toUpperCase());
+        return object;
+    }
 }

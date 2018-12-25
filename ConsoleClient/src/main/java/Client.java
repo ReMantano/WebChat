@@ -36,6 +36,7 @@ public class Client {
 	}
 
 	public void start() throws IOException {
+		log.info("Соединение установлено");
 		Scanner sc = new Scanner(System.in);
 		String message = sc.nextLine();
 
@@ -45,16 +46,15 @@ public class Client {
 
 		while(!message.equals("\\exit")) {
 			if(message.length() > 0) {
-				fillJSONOnbject(message,jObject);
+				fillJSONObject(message,jObject);
 				client.sendMessage(jObject.toJSONString());
 			}
 			message = sc.nextLine();
 		}
 
-		//client.closeConnection();
 	}
 
-	private void fillJSONOnbject(String text, JSONObject object){
+	private void fillJSONObject(String text, JSONObject object){
 		if (checkCommand(text)){
 			text = text.substring(1);
 			String[] array = text.split(" ");
@@ -63,7 +63,7 @@ public class Client {
 				object.put("Status", array[1].toUpperCase());
 				object.put("Name", array[2].toUpperCase());
 			}catch (IndexOutOfBoundsException e){
-				return;
+				System.out.println("Неверная команда");
 			}
 		}else{
 			object.put("Command","TEXT");

@@ -56,7 +56,7 @@ public class AgentProfile extends Profile {
     }
 
     public boolean noEmptyConnection(int index){
-        return arraySession[index] != null;
+        return arraySession[index] != null && arraySession[index] != getSelfSession();
     }
 
     public int findIndexBySession(Session session){
@@ -70,7 +70,7 @@ public class AgentProfile extends Profile {
 
     public boolean checkActiveConnection(){
         for(int i = 0; i < arraySession.length; i++){
-            if(arraySession[i] != null)
+            if(noEmptyConnection(i))
                 return true;
         }
         return false;
@@ -85,4 +85,5 @@ public class AgentProfile extends Profile {
             }
         }
     }
+
 }

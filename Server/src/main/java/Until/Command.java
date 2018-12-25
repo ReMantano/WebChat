@@ -5,6 +5,7 @@ public enum Command {
     LEAVE,
     EXIT,
     TEXT,
+    DELETE,
     UNKNOWN,
     NULL
 }

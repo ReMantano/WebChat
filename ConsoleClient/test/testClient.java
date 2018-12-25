@@ -1,3 +1,4 @@
+import org.json.simple.JSONObject;
 import org.junit.Test;
 import main.java.Client;
 import main.java.ClientEndpointChat;
@@ -20,7 +21,11 @@ public class testClient {
         Client client = new Client(clientEndpointChat);
         client.start();
 
-        verify(clientEndpointChat).sendMessage("Hi");
-        verify(clientEndpointChat).closeConnection();
+        JSONObject object = new JSONObject();
+        object.put("Command","TEXT");
+        object.put("Index","0");
+        object.put("Size","1");
+        object.put("Message","Hi");
+        verify(clientEndpointChat).sendMessage(object.toJSONString());
     }
 }

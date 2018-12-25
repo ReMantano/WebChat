@@ -1,11 +1,10 @@
 package main.java.Server;
 
-import main.java.Until.*;
+import main.java.Until.AgentProfile;
+import main.java.Until.ClientProfile;
+import main.java.Until.Profile;
+import main.java.Until.Status;
 import org.json.simple.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import javax.websocket.Session;
 
@@ -28,7 +27,7 @@ public class RegisteredNewUser {
         ServerEnpoint.getProfileFromSession(session).setName((String) message.get("Name"));
         message.put("Message", name + " вы зарегистрированы как " + status);
         ServerEnpoint.sendText(session,message.toJSONString());
-        ServerEnpoint.log.info(name + "зарегистрировался как " + status);
+        ServerEnpoint.log.info(name + " зарегистрировался как " + status);
     }
 
     private void addNewUser(Profile prof, Status status, int size){

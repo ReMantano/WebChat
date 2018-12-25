@@ -63,14 +63,13 @@ public class ServerEnpoint {
                 systemCommand.checkCommand(session, jsonObject);
             log.info("Disconnect:" + session.toString());
         }catch(IllegalStateException e){
-
+            log.error(e);
         }
     }
     
     private void send(Session session, JSONObject message) {
 
         Profile prof = connectionMap.get(session);
-
         if (prof.getStatus() == Status.AGENT){
             AgentProfile agent = (AgentProfile) prof;
             String temp = (String) message.get("Index");
@@ -103,9 +102,8 @@ public class ServerEnpoint {
 
     }
 
-    private boolean connectionClientToAgent(Profile prof, JSONObject message){
-        try {
-
+    private synchronized boolean connectionClientToAgent(Profile prof, JSONObject message){
+        if(agentList.size() > 0){
             Session agent = agentList.get(0);
             prof.setConnection(agent);
             AgentProfile agentProf = (AgentProfile) connectionMap.get(agent);
@@ -116,30 +114,27 @@ public class ServerEnpoint {
             message.put("Index",agentProf.findIndexBySession(prof.getSelfSession()));
             sendText(agent,message.toJSONString());
             return true;
-        }
-        catch (IndexOutOfBoundsException e){
+        }else
             return false;
-        }
+
 
     }
 
-    private void createChatWithWaitClient(Session session) {
+    private synchronized void createChatWithWaitClient(Session session) {
 
-        try {
+        if(agentList.size() > 0){
             Session agentSession =  agentList.get(0);
             createChatOnAllWindows(agentSession,(AgentProfile) connectionMap.get(agentSession));
 
-        }catch (IndexOutOfBoundsException e){
-            return;
         }
 
     }
 
-    private void createChatOnAllWindows(Session session, AgentProfile agent){
+    private synchronized void createChatOnAllWindows(Session session, AgentProfile agent){
             int length = agent.getLength();
 
             for(int i = 0; i < length; i++){
-                try{
+                if(clientWaitList.size() > 0) {
                     Session client = clientWaitList.remove(0);
                     ClientProfile clientProfile = (ClientProfile) connectionMap.get(client);
                     ArrayList<String> list = clientProfile.getMessageInVoid();
@@ -151,25 +146,24 @@ public class ServerEnpoint {
                     jsonObject.put("Name", agent.getName());
                     jsonObject.put("Message", "Аген " + agent.getName() + "готов к беседе\n");
 
-                    sendText(client,jsonObject.toJSONString());
+                    sendText(client, jsonObject.toJSONString());
 
                     jsonObject = new JSONObject();
                     jsonObject.put("Name", clientProfile.getName());
                     jsonObject.put("Message", list);
-                    jsonObject.put("Index",agent.findIndexBySession(client));
+                    jsonObject.put("Index", agent.findIndexBySession(client));
 
-                    sendText(session,jsonObject.toJSONString());
+                    sendText(session, jsonObject.toJSONString());
 
-                    if(agent.checkArrayFill())
-                        {
-                            agentList.remove(session);
-                            break;
-                        }
+                    if (agent.checkArrayFill()) {
+                        agentList.remove(session);
+                        break;
+                    }
 
                     clientProfile.clearMessageInVoid();
-                }catch (IndexOutOfBoundsException e){
+                }else
                     break;
-                }
+
             }
 
     }
@@ -185,12 +179,6 @@ public class ServerEnpoint {
         }
     }
 
-    private int getChatIndex(String command){
-        int start = command.indexOf('%');
-        String sub = command.substring(0,start);
-
-        return Integer.valueOf(sub);
-    }
 
     private JSONObject getJSONFromString(String jString){
         try {
@@ -229,6 +217,7 @@ public class ServerEnpoint {
     public synchronized static boolean containAgent(Session session){
         return agentList.contains(session);
     }
+
     public synchronized static void addClient(Session session){
         clientWaitList.add(session);
     }

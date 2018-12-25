@@ -40,6 +40,21 @@
 	margin-bottom: 15px;
 }
 
+.headerChatName{
+	display: table-cell;
+}
+
+.deleteChatBlockButton{
+	display: table-cell;
+	float: right;
+}
+
+.header{
+	display: table;
+    width: 100%;
+    height: 15%;
+}
+
 ::-webkit-scrollbar {
     background: white; 
 }

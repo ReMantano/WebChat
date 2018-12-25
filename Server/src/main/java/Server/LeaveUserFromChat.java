@@ -3,7 +3,6 @@ package main.java.Server;
 import javax.websocket.Session;
 
 import main.java.Until.AgentProfile;
-import main.java.Until.ClientProfile;
 import main.java.Until.Profile;
 import main.java.Until.Status;
 import org.json.simple.JSONObject;
