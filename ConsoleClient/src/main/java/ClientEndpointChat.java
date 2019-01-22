@@ -33,13 +33,14 @@ public class ClientEndpointChat {
 	@OnMessage
 	public void getMessage(String message) {
 	    JSONObject object = getJSONFromString(message);
+		String name = (String) object.get("name");
 	    try {
-			JSONArray array = (JSONArray) object.get("Message");
+			JSONArray array = (JSONArray) object.get("text");
 			for(Object ob : array){
-				System.out.print(ob);
+				System.out.print(name+": "+ob);
 			}
 		}catch (ClassCastException e){
-			System.out.println(object.get("Message"));
+			System.out.println(name+": "+object.get("text"));
 		}
 
 

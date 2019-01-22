@@ -1,12 +1,11 @@
 package Server;
 
 import main.java.Server.ServerEnpoint;
-import main.java.Server.ServerEnpoint;
-import main.java.Until.AgentProfile;
-import main.java.Until.ClientProfile;
-import main.java.Until.Profile;
+import main.java.Profile.AgentProfile;
+import main.java.Profile.ClientProfile;
+import main.java.Until.Command;
+import main.java.Until.Message;
 import main.java.Until.Status;
-import org.json.simple.JSONObject;
 import org.junit.*;
 
 import javax.websocket.RemoteEndpoint;
@@ -56,12 +55,14 @@ public class testServerEndPoint {
 
     @Test
     public void testSendMessageButUserNotRegistered() throws IOException {
-        JSONObject object = createJSONObject("text");
-        server.message(sessionTest1,object.toJSONString());
+        Message message = new Message();
+        message.setCommand(Command.TEXT);
 
-        object.put("Message","Вы не зарегистрированны");
+        server.message(sessionTest1,message.toJsonString());
 
-        verify(sessionTest1.getBasicRemote()).sendText(object.toJSONString());
+        message.setText("Вы не зарегистрированны");
+
+        verify(sessionTest1.getBasicRemote()).sendText(message.toJsonString());
 
     }
 
@@ -75,13 +76,13 @@ public class testServerEndPoint {
         server.setNewConnection(sessionTest1,profile);
         server.setNewConnection(sessionTest2,agent);
 
-        JSONObject object = createJSONObject("text");
-        object.put("Index","0");
+        Message message = new Message();
+        message.setCommand(Command.TEXT);
+        message.setIndex(0);
 
-        server.message(sessionTest1,object.toJSONString());
-        object.put("Index",0);
+        server.message(sessionTest1,message.toJsonString());
 
-        verify(sessionTest2.getBasicRemote()).sendText(object.toJSONString());
+        verify(sessionTest2.getBasicRemote()).sendText(message.toJsonString());
 
     }
 
@@ -91,13 +92,14 @@ public class testServerEndPoint {
         AgentProfile agent = new AgentProfile(sessionTest2,1);
         server.setNewConnection(sessionTest2,agent);
 
-        JSONObject object = createJSONObject("text");
-        object.put("Index","0");
+        Message message = new Message();
+        message.setCommand(Command.TEXT);
+        message.setIndex(0);
 
-        server.message(sessionTest2,object.toJSONString());
-        object.put("Message","Дождитесь клиента");
+        server.message(sessionTest2,message.toJsonString());
+        message.setText("Дождитесь клиента");
 
-        verify(sessionTest2.getBasicRemote()).sendText(object.toJSONString());
+        verify(sessionTest2.getBasicRemote()).sendText(message.toJsonString());
 
     }
 
@@ -106,16 +108,17 @@ public class testServerEndPoint {
 
         ClientProfile profile = new ClientProfile(sessionTest1);
         server.setNewConnection(sessionTest1,profile);
-        JSONObject object = createJSONObject("text");
-        object.put("Message",message);
+        Message message = new Message();
+        message.setCommand(Command.TEXT);
+        message.setText(this.message);
 
-        server.message(sessionTest1,object.toJSONString());
-        object.put("Message","Нет свободных агентов");
+        server.message(sessionTest1,message.toJsonString());
+        message.setText("Нет свободных агентов");
         ArrayList<String> list = new ArrayList<>();
-        list.add(message+"\n");
+        list.add(this.message+"\n");
 
-        verify(sessionTest1.getBasicRemote()).sendText(object.toJSONString());
-        Assert.assertTrue(profile.getMessageInVoid().equals(list));
+        verify(sessionTest1.getBasicRemote()).sendText(message.toJsonString());
+        Assert.assertTrue(profile.getNotSentMessagesList().equals(list));
 
     }
 
@@ -125,17 +128,21 @@ public class testServerEndPoint {
         ClientProfile profile = new ClientProfile(sessionTest1);
         server.setNewConnection(sessionTest1,profile);
 
-        JSONObject object1 = createJSONObject("register");
-        object1.put("Status","AGENT");
-        object1.put("Name","A");
-        object1.put("Size","1");
-        server.message(sessionTest2,object1.toJSONString());
-        object1.put("Message","A вы зарегистрированы как AGENT");
+        Message message = new Message();
+        message.setCommand(Command.REGISTER);
+        message.setProfile(Status.AGENT);
+        message.setName("A");
+        message.setSize(1);
+        server.message(sessionTest2,message.toJsonString());
+        message.setText("A вы зарегистрированы как AGENT");
 
-        JSONObject object = createJSONObject("text");
-        server.message(sessionTest1,object.toJSONString());
+        Message message1 = new Message();
+        message1.setCommand(Command.TEXT);
+        server.message(sessionTest1,message1.toJsonString());
 
-        verify(sessionTest2.getBasicRemote()).sendText(object1.toJSONString());
+        message.setName("Сервер");
+
+        verify(sessionTest2.getBasicRemote()).sendText(message.toJsonString());
         Assert.assertTrue(profile.getConnection() == sessionTest2);
         Assert.assertTrue(((AgentProfile) server.getProfileFromSession(sessionTest2))
                 .getConnection(0) == sessionTest1);
@@ -148,26 +155,22 @@ public class testServerEndPoint {
         ClientProfile profile = new ClientProfile(sessionTest1);
 
         server.setNewConnection(sessionTest1,profile);
-        JSONObject object = createJSONObject("text");
-        server.message(sessionTest1,object.toJSONString());
+        Message message = new Message();
+        message.setCommand(Command.TEXT);
+        server.message(sessionTest1,message.toJsonString());
 
-        JSONObject object1 = createJSONObject("register");
-        object1.put("Status","AGENT");
-        object1.put("Name","A");
-        object1.put("Size","1");
-        server.message(sessionTest2,object1.toJSONString());
+        Message message1 = new Message();
+        message1.setCommand(Command.REGISTER);
+        message1.setProfile(Status.AGENT);
+        message1.setName("A");
+        message1.setSize(1);
+        server.message(sessionTest2,message1.toJsonString());
 
-        AgentProfile agent = (AgentProfile) server.getProfileFromSession(profile.getConnection());
-
+        AgentProfile agent = (AgentProfile) server.getProfileFromSession(sessionTest2);
+        System.out.println(agent.toString());
         Assert.assertTrue(agent.getConnection(0) == sessionTest1);
         Assert.assertTrue(profile.getConnection() == agent.getSelfSession());
 
-    }
-
-    private JSONObject createJSONObject(String command){
-        JSONObject object = new JSONObject();
-        object.put("Command", command.toUpperCase());
-        return object;
     }
 }
 

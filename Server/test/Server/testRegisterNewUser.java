@@ -2,8 +2,10 @@ package Server;
 
 import main.java.Server.RegisteredNewUser;
 import main.java.Server.ServerEnpoint;
-import main.java.Until.Profile;
-import org.json.simple.JSONObject;
+import main.java.Profile.Profile;
+import main.java.Until.Command;
+import main.java.Until.Message;
+import main.java.Until.Status;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -47,7 +49,6 @@ public class testRegisterNewUser {
 
     @Test
     public void testStatusError() throws IOException {
-        String text = "\\register unknown unknown";
         Session session = mock(Session.class);
         RemoteEndpoint.Basic basic = mock(RemoteEndpoint.Basic.class);
         when(session.getBasicRemote()).thenReturn(basic);
@@ -55,23 +56,28 @@ public class testRegisterNewUser {
 
         RegisteredNewUser register = new RegisteredNewUser();
 
-        JSONObject object  = new JSONObject();
-        object.put("Status","UNKNOWN");
+        Message message = new Message();
+        message.setProfile(null);
 
-        register.registered(object, session);
+        register.registered(message, session);
 
-        Mockito.verify(session.getBasicRemote()).sendText(object.toJSONString());
+        Mockito.verify(session.getBasicRemote()).sendText(message.toJsonString());
+
+        ServerEnpoint.removeConnection(session);
+        ServerEnpoint.removeAgent(session);
+        ServerEnpoint.removeClient(session);
     }
 
     private void reg(String status, String name, Session session){
 
         RegisteredNewUser register = new RegisteredNewUser();
 
-        JSONObject object  = new JSONObject();
-        object.put("Status",status);
-        object.put("Name",name);
+        Message message = new Message();
+        message.setCommand(Command.REGISTER);
+        message.setName(name);
+        message.setProfile(Status.valueOf(status.toUpperCase()));
 
-        register.registered(object, session);
+        register.registered(message, session);
 
         Profile prof = ServerEnpoint.getProfileFromSession(session);
 

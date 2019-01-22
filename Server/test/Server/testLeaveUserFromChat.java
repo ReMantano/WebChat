@@ -2,8 +2,8 @@ package Server;
 
 import main.java.Server.LeaveUserFromChat;
 import main.java.Server.ServerEnpoint;
-import main.java.Until.AgentProfile;
-import main.java.Until.ClientProfile;
+import main.java.Profile.AgentProfile;
+import main.java.Profile.ClientProfile;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

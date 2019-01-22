@@ -1,6 +1,9 @@
-package main.java.Until;
+package main.java.Profile;
+
+import main.java.Until.Status;
 
 import javax.websocket.Session;
+import java.util.Arrays;
 
 public class AgentProfile extends Profile {
 
@@ -46,6 +49,7 @@ public class AgentProfile extends Profile {
         }
 
     }
+
 
     public Session[] getArraySession(){
         return arraySession;

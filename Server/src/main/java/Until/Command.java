@@ -7,5 +7,4 @@ public enum Command {
     TEXT,
     DELETE,
     UNKNOWN,
-    NULL
 }

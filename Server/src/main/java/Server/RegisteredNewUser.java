@@ -1,32 +1,34 @@
 package main.java.Server;
 
-import main.java.Until.AgentProfile;
-import main.java.Until.ClientProfile;
-import main.java.Until.Profile;
+import main.java.Profile.Profile;
 import main.java.Until.Status;
-import org.json.simple.JSONObject;
+import main.java.Until.Message;
+import main.java.Profile.AgentProfile;
+import main.java.Profile.ClientProfile;
 
 import javax.websocket.Session;
 
 public class RegisteredNewUser {
 
-    public synchronized void registered(JSONObject message, Session session) {
+    public synchronized void registered(Message message, Session session) {
         Profile prof = new Profile(session);
-        String name = (String) message.get("Name");
-        String status = (String) message.get("Status");
-        int size = Integer.valueOf((String) message.getOrDefault("Size","1"));
+        String name = message.getName();
+        Status status = message.getProfile();
+        int size = message.getSize();
 
         try{
-            addNewUser(prof, Status.valueOf(status.toUpperCase()), size);
+            addNewUser(prof, status, size);
         }catch (IllegalArgumentException e){
-            message.put("Message","Вы указали неправильный статус");
-        	ServerEnpoint.sendText(session,message.toJSONString());
+            message.setName("Сервер");
+            message.setText("Вы указали неправильный статус");
+        	ServerEnpoint.sendText(session,message.toJsonString());
             return;
         }
 
-        ServerEnpoint.getProfileFromSession(session).setName((String) message.get("Name"));
-        message.put("Message", name + " вы зарегистрированы как " + status);
-        ServerEnpoint.sendText(session,message.toJSONString());
+        ServerEnpoint.getProfileFromSession(session).setName(name);
+        message.setName("Сервер");
+        message.setText(name + " вы зарегистрированы как " + status);
+        ServerEnpoint.sendText(session,message.toJsonString());
         ServerEnpoint.log.info(name + " зарегистрировался как " + status);
     }
 

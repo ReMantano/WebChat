@@ -89,8 +89,8 @@ window.onload = function(){
 			test.parentNode.removeChild(test);
 			
 			let jMessage = {
-				Command: "DELETE",
-				Index: id.toString()
+				command: "DELETE",
+				index: id.toString()
 			}
 			
 			socket.send(JSON.stringify(jMessage));
@@ -155,10 +155,10 @@ window.onload = function(){
 			var message = this.message.value;
 			
 			let jMessage = {
-				Message: message,
-				Name: name,
-				Command: "TEXT",
-				Index: this.name.substring(NAME_CHAT_FORM.length)
+				text: message,
+				name: name,
+				command: "TEXT",
+				index: this.name.substring(NAME_CHAT_FORM.length)
 			}
 			
 			if (connection){
@@ -170,7 +170,7 @@ window.onload = function(){
 						block.appendChild(getMessageBlock(message,true));
 						block.scrollTop = chatField.scrollHeight;
 					}else{
-						jMessage.Command = this.message.value.substr(1);
+						jMessage.command = this.message.value.substr(1);
 					}
 						socket.send( JSON.stringify(jMessage));
 					
@@ -187,10 +187,10 @@ window.onload = function(){
 		startChat();
 		
 		let jMessage = {
-			Name: name,
-			Command: "REGISTER",
-			Status: profile,
-			Size: count
+			name: name,
+			command: "REGISTER",
+			profile: profile.toUpperCase(),
+			size: count
 		}
 		
 		socket.send(JSON.stringify(jMessage));
@@ -210,16 +210,16 @@ window.onload = function(){
 	socket.onmessage = function(event){
 		let jMessage = JSON.parse(event.data);
 		var block, nameHeader = "Chat";
-		var ind = jMessage.Index;
+		var ind = jMessage.index;
 		
-		if(jMessage.Name != undefined){
-			nameHeader = jMessage.Name;
+		if(jMessage.name != undefined){
+			nameHeader = jMessage.name;
 		}
 		
 		if (ind == undefined){
 			block = document.getElementById("block");
 				for(var i = 1; i < parseInt(count) + 1; ++i){
-					block.appendChild(getMessageBlock(jMessage.Message,false));
+					block.appendChild(getMessageBlock(jMessage.text,false));
 		            block.scrollTop = block.scrollHeight;
 					block = document.getElementById("block" + i);
 				}
@@ -232,7 +232,7 @@ window.onload = function(){
 					block = chatField;
 			}
 			
-			block.appendChild(getMessageBlock(jMessage.Message,false));
+			block.appendChild(getMessageBlock(jMessage.text,false));
 			block.scrollTop = block.scrollHeight;
 		}
 	
@@ -252,10 +252,10 @@ window.onload = function(){
 
 	formChat.onsubmit = function(){
 		let jMessage = {
-			Message: this.message.value,
-			Name: name,
-			Command: "TEXT",
-			Index: "0"
+			text: this.message.value,
+			name: name,
+			command: "TEXT",
+			index: "0"
 		}
 		
 		if (connection){
@@ -266,7 +266,7 @@ window.onload = function(){
 					chatField.appendChild(getMessageBlock(message,true));
 					chatField.scrollTop = chatField.scrollHeight;
 				}else{
-					jMessage.Command = this.message.value.substr(1);
+					jMessage.command = this.message.value.substr(1).toUpperCase();
 				}
 				socket.send( JSON.stringify(jMessage));
 				
@@ -278,8 +278,8 @@ window.onload = function(){
 
 	document.getElementById(NAME_CHAT_HEADER_BUTTON_LEAVE).onclick = function(){
 		let jMessage = {
-			Command: "LEAVE",
-			Index: "0"
+			command: "LEAVE",
+			index: "0"
 		}
 		
 		socket.send(JSON.stringify(jMessage));

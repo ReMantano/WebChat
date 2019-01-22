@@ -4,27 +4,26 @@ import java.io.IOException;
 
 import javax.websocket.Session;
 
-import main.java.Until.AgentProfile;
-import main.java.Until.Command;
-import main.java.Until.Profile;
-import main.java.Until.Status;
-import org.json.simple.JSONObject;
+import main.java.Profile.AgentProfile;
+import main.java.Profile.Profile;
+import main.java.Until.*;
 
 public class SystemCommand {
 
     private static RegisteredNewUser commandRegister = new RegisteredNewUser();
     private static LeaveUserFromChat commandLeave = new LeaveUserFromChat();
 
-    public boolean checkCommand(Session session, JSONObject message){
-        Command status = findCommand(((String) message.get("Command")).toUpperCase());
+    public boolean checkCommand(Session session, Message message){
+        Command status = message.getCommand();
 
         switch(status){
             case REGISTER:{
                 if (!ServerEnpoint.contain(session))
                     commandRegister.registered(message, session);
                 else {
-                    message.put("Message", "Вы зарегистрированы");
-                    ServerEnpoint.sendText(session, message.toJSONString());
+                    message.setText("Вы зарегистрированы");
+                    message.setName("Сервер");
+                    ServerEnpoint.sendText(session, message.toJsonString());
                 }
                 return true;
             }
@@ -34,12 +33,13 @@ public class SystemCommand {
                     if(prof.getConnection() != null)
                         commandLeave.leave(prof, -1);
                     else {
-                        int index = Integer.valueOf((String) message.get("Index"));
+                        int index = message.getIndex();
                         if(prof.getStatus() == Status.AGENT &&((AgentProfile) prof).noEmptyConnection(index))
                             commandLeave.leave(prof, index);
                         else {
-                            message.put("Message","У вас нет собеседника");
-                            ServerEnpoint.sendText(session, message.toJSONString());
+                            message.setName("Сервер");
+                            message.setText("У вас нет собеседника");
+                            ServerEnpoint.sendText(session, message.toJsonString());
                         }
                     }
                 }
@@ -56,7 +56,8 @@ public class SystemCommand {
                             commandLeave.leave(prof, -1);
                     }
                 }
-                exitUserFromChat(session);
+                if (!message.getText().equals("Close"))
+                    exitUserFromChat(session);
 
                 return true;
             }
@@ -64,7 +65,7 @@ public class SystemCommand {
                 Profile prof =  ServerEnpoint.getProfileFromSession(session);
                 if (prof != null) {
                     if(prof.getStatus() == Status.AGENT){
-                        commandLeave.leave(prof,Integer.valueOf((String) message.get("Index")));
+                        commandLeave.leave(prof,message.getIndex());
                         ((AgentProfile) prof).addSession(prof.getSelfSession());
                         if(((AgentProfile) prof).checkArrayFill())
                             ServerEnpoint.removeAgent(session);
@@ -75,8 +76,9 @@ public class SystemCommand {
 
             }
             case UNKNOWN:{
-                message.put("Message","Неизвестная команда");
-            	ServerEnpoint.sendText(session,message.toJSONString());
+                message.setName("Сервер");
+                message.setText("Неизвестная команда");
+            	ServerEnpoint.sendText(session,message.toJsonString());
                 return true;
             }
             case TEXT: {
@@ -86,25 +88,17 @@ public class SystemCommand {
         return false;
     }
 
-    private Command findCommand(String command){
-        try {
-            return Command.valueOf(command);
-        }catch (IllegalArgumentException e){
-            return Command.UNKNOWN;
-        }
-
-    }
 
     private synchronized void exitUserFromChat(Session session){
     	ServerEnpoint.removeAgent(session);
     	ServerEnpoint.removeClient(session);
     	ServerEnpoint.removeConnection(session);
 
-    	if(!session.isOpen())
-    	    return;
         try {
-            session.close();
-        } catch (IOException e) {
+            if (session.isOpen())
+                session.close();
+
+        } catch (IOException | IllegalStateException e) {
             ServerEnpoint.log.error(e);
         }
     }

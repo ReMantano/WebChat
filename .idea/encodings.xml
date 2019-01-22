@@ -4,13 +4,12 @@
     <file url="file://$PROJECT_DIR$/ConsoleClient/src/main/java/Client.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ConsoleClient/src/main/java/ClientEndpointChat.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Server" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Server/src/main/java/Profile/Profile.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Server/src/main/java/Server/LeaveUserFromChat.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Server/src/main/java/Server/RegisteredNewUser.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Server/src/main/java/Server/ServerEnpoint.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Server/src/main/java/Server/SystemCommand.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Server/src/main/java/Until/Command.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/Server/src/main/java/Until/CommandIdentifier.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/Server/src/main/java/Until/Profile.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Server/src/main/java/Until/Status.java" charset="UTF-8" />
     <file url="PROJECT" charset="UTF-8" />
   </component>

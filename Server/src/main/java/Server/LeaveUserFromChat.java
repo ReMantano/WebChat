@@ -2,10 +2,10 @@ package main.java.Server;
 
 import javax.websocket.Session;
 
-import main.java.Until.AgentProfile;
-import main.java.Until.Profile;
+import main.java.Profile.AgentProfile;
+import main.java.Until.Message;
+import main.java.Profile.Profile;
 import main.java.Until.Status;
-import org.json.simple.JSONObject;
 
 public class LeaveUserFromChat {
 
@@ -35,15 +35,16 @@ public class LeaveUserFromChat {
 
     private synchronized void leaveAgent(AgentProfile agent){
 
-        JSONObject jo = new JSONObject();
+        Message message = new Message();
 
         Session[] arraySession = agent.getArraySession();
 
         for(Session temp : arraySession){
             if(temp != null){
                 ServerEnpoint.getProfileFromSession(temp).setConnection(null);
-                jo.put("Message",agent.getName() + " вышел из чата");
-                ServerEnpoint.sendText(temp,jo.toJSONString());
+                message.setName("Сервер");
+                message.setText(agent.getName() + " вышел из чата");
+                ServerEnpoint.sendText(temp,message.toJsonString());
             }
 
         }
@@ -53,33 +54,32 @@ public class LeaveUserFromChat {
         Session temp = profile.getConnection();
         profile.setConnection(null);
         AgentProfile agent = (AgentProfile) ServerEnpoint.getProfileFromSession(temp);
+        int index = agent.findIndexBySession(profile.getSelfSession());
         agent.removeSession(profile.getSelfSession());
 
         if(!ServerEnpoint.containAgent(agent.getSelfSession()))
             ServerEnpoint.addAgent(agent.getSelfSession());
 
-        sendLeaveMessage(profile,temp);
-    }
-
-    private void sendLeaveMessage(Profile p, Session t){
-        sendLeaveMessage(p,t,0);
+        sendLeaveMessage(profile,temp, index);
     }
 
     private void sendLeaveMessage(Profile profile, Session temp, int index){
         String name = profile.getName();
-        JSONObject jo1 = new JSONObject();
-        JSONObject jo2 = new JSONObject();
-        jo1.put("Message",name + " вышел из чата");
-        jo2.put("Message","Вы вышли из чата");
+        Message message1 = new Message();
+        Message message2 = new Message();
+        message1.setName("Сервер");
+        message1.setText(name + " вышел из чата");
+        message2.setName("Сервер");
+        message2.setText("Вы вышли из чата");
 
         if(profile.getStatus() == Status.AGENT){
-            jo2.put("Index",index);
+            message2.setIndex(index);
         }else{
-            jo1.put("Index",index) ;
+            message1.setIndex(index);
         }
 
-        ServerEnpoint.sendText(temp,jo1.toJSONString());
-        ServerEnpoint.sendText(profile.getSelfSession(),jo2.toJSONString());
+        ServerEnpoint.sendText(temp,message1.toJsonString());
+        ServerEnpoint.sendText(profile.getSelfSession(),message2.toJsonString());
     }
 
 

@@ -2,14 +2,12 @@ package main.java.Server;
 import java.io.IOException;
 import java.util.*;
 
-import main.java.Until.AgentProfile;
-import main.java.Until.ClientProfile;
-import main.java.Until.Profile;
-import main.java.Until.Status;
+import com.google.gson.GsonBuilder;
+import main.java.Profile.AgentProfile;
+import main.java.Profile.ClientProfile;
+import main.java.Profile.Profile;
+import main.java.Until.*;
 import org.apache.log4j.Logger;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
@@ -26,25 +24,26 @@ public class ServerEnpoint {
 
     @OnOpen
     public void open(Session session )  {
-        JSONObject o = new JSONObject();
-        o.put("Message","Id: " + session.getId() + "\tСоединение установленно");
-        sendText(session,o.toJSONString());
+        Message message = new Message();
+        message.setName("Сервер");
+        message.setText("Id: " + session.getId() + "\tСоединение установленно");
+        sendText(session,message.toJsonString());
         log.info("Connection: " + session.toString());
     }
 
     @OnMessage
     public void message(Session session, String message)  {
-        JSONObject jMessage = getJSONFromString(message);
+        Message gMessage = new GsonBuilder().create().fromJson(message, Message.class);
 
-        if (!systemCommand.checkCommand(session,jMessage)) {
+        if (!systemCommand.checkCommand(session,gMessage)) {
             if (connectionMap.containsKey(session))
-                send(session, jMessage);
+                send(session, gMessage);
             else {
-                jMessage.put("Message","Вы не зарегистрированны" );
-                sendText(session, jMessage.toJSONString());
+                gMessage.setText("Вы не зарегистрированны" );
+                sendText(session, gMessage.toJsonString());
             }
         }else{
-            createChatWithWaitClient(session);
+            createChatWithWaitClient();
         }
 
     }
@@ -56,43 +55,47 @@ public class ServerEnpoint {
 
     @OnClose
     public void closeConnection(Session session){
-        try {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("Command", "EXIT");
-            if(connectionMap.containsKey(session))
-                systemCommand.checkCommand(session, jsonObject);
-            log.info("Disconnect:" + session.toString());
-        }catch(IllegalStateException e){
-            log.error(e);
+        if(connectionMap.containsKey(session)) {
+            Message message = new Message();
+            message.setCommand(Command.EXIT);
+            message.setText("Close");
+
+            systemCommand.checkCommand(session, message);
+
+            agentList.remove(session);
+            clientWaitList.remove(session);
+            connectionMap.remove(session);
         }
+        log.info("Disconnect:" + session.toString());
+
+        createChatWithWaitClient();
     }
     
-    private void send(Session session, JSONObject message) {
+    private void send(Session session, Message message) {
 
         Profile prof = connectionMap.get(session);
         if (prof.getStatus() == Status.AGENT){
             AgentProfile agent = (AgentProfile) prof;
-            String temp = (String) message.get("Index");
-            int index = Integer.valueOf(temp);
+            int index = message.getIndex();
 
             if(agent.noEmptyConnection(index)){
-                sendText(agent.getConnection(index),message.toJSONString());
+                sendText(agent.getConnection(index),message.toJsonString());
             }else{
-                message.put("Message", "Дождитесь клиента");
-                sendText(session,message.toJSONString());
+                message.setText("Дождитесь клиента");
+                sendText(session,message.toJsonString());
             }
         }else{
             if (prof.getConnection() != null) {
                 AgentProfile agent = (AgentProfile)connectionMap.get(prof.getConnection());
                 int index = agent.findIndexBySession(session);
-                message.put("Index",index);
-                sendText(prof.getConnection(), message.toJSONString());
+                message.setIndex(index);
+                sendText(prof.getConnection(), message.toJsonString());
             }
             else{
                 if (!connectionClientToAgent(prof,message)) {
-                    String voidMessage = (String) message.get("Message");
-                    message.put("Message", "Нет свободных агентов");
-                    sendText(session,message.toJSONString());
+                    String voidMessage =  message.getText();
+                    message.setText("Нет свободных агентов");
+                    sendText(session,message.toJsonString());
                     ((ClientProfile) prof).addMessageInVoid(voidMessage);
                     if (!clientWaitList.contains(session))
                         clientWaitList.add(session);
@@ -102,17 +105,19 @@ public class ServerEnpoint {
 
     }
 
-    private synchronized boolean connectionClientToAgent(Profile prof, JSONObject message){
+    private synchronized boolean connectionClientToAgent(Profile prof, Message message){
         if(agentList.size() > 0){
             Session agent = agentList.get(0);
             prof.setConnection(agent);
             AgentProfile agentProf = (AgentProfile) connectionMap.get(agent);
-            if(agentProf.addSession(prof.getSelfSession())){
-                agentList.remove(agent);
+
+            agentList.remove(agent);
+            if(!agentProf.addSession(prof.getSelfSession())){
+                agentList.add(agent);
             }
 
-            message.put("Index",agentProf.findIndexBySession(prof.getSelfSession()));
-            sendText(agent,message.toJSONString());
+            message.setIndex(agentProf.findIndexBySession(prof.getSelfSession()));
+            sendText(agent,message.toJsonString());
             return true;
         }else
             return false;
@@ -120,14 +125,12 @@ public class ServerEnpoint {
 
     }
 
-    private synchronized void createChatWithWaitClient(Session session) {
-
+    private synchronized void createChatWithWaitClient() {
         if(agentList.size() > 0){
             Session agentSession =  agentList.get(0);
             createChatOnAllWindows(agentSession,(AgentProfile) connectionMap.get(agentSession));
 
         }
-
     }
 
     private synchronized void createChatOnAllWindows(Session session, AgentProfile agent){
@@ -137,30 +140,36 @@ public class ServerEnpoint {
                 if(clientWaitList.size() > 0) {
                     Session client = clientWaitList.remove(0);
                     ClientProfile clientProfile = (ClientProfile) connectionMap.get(client);
-                    ArrayList<String> list = clientProfile.getMessageInVoid();
+                    ArrayList<String> list = clientProfile.getNotSentMessagesList();
                     list.add("Вы переписываетесь с клиентом " + clientProfile.getName());
                     clientProfile.setConnection(session);
                     agent.addSession(client);
 
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("Name", agent.getName());
-                    jsonObject.put("Message", "Аген " + agent.getName() + "готов к беседе\n");
+                    Message message = new Message();
+                    message.setName(agent.getName());
+                    message.setText("Аген " + agent.getName() + "готов к беседе\n");
+                    message.setCommand(Command.TEXT);
 
-                    sendText(client, jsonObject.toJSONString());
+                    sendText(client, message.toJsonString());
 
-                    jsonObject = new JSONObject();
-                    jsonObject.put("Name", clientProfile.getName());
-                    jsonObject.put("Message", list);
-                    jsonObject.put("Index", agent.findIndexBySession(client));
+                    message.setName(clientProfile.getName());
+                    message.setIndex(agent.findIndexBySession(client));
+                    message.setText("");
+                    for (String text : list){
+                        String temp = message.getText() + text;
+                        message.setText(temp);
+                    }
 
-                    sendText(session, jsonObject.toJSONString());
+                    sendText(session, message.toJsonString());
 
-                    if (agent.checkArrayFill()) {
-                        agentList.remove(session);
+                    clientProfile.clearNotSentMessagesList();
+
+                    agentList.remove(agent);
+                    if (!agent.checkArrayFill()) {
+                        agentList.add(session);
                         break;
                     }
 
-                    clientProfile.clearMessageInVoid();
                 }else
                     break;
 
@@ -169,26 +178,17 @@ public class ServerEnpoint {
     }
 
     static void sendText(Session session, String text){
-        if (!session.isOpen()) {
-            return;
-        }
         try{
-            session.getBasicRemote().sendText(text);
-        }catch (IOException e){
+            if (session.isOpen())
+                session.getBasicRemote().sendText(text);
+        }catch (IOException | IllegalStateException e){
+            agentList.remove(session);
+            clientWaitList.remove(session);
+            connectionMap.remove(session);
             log.error(e);
         }
     }
 
-
-    private JSONObject getJSONFromString(String jString){
-        try {
-            Object o = new JSONParser().parse(jString);
-            return (JSONObject) o;
-        } catch (ParseException e) {
-            log.error(e);
-            return null;
-        }
-    }
 
     public synchronized static Profile getProfileFromSession(Session session){
         return connectionMap.get(session);
@@ -225,4 +225,5 @@ public class ServerEnpoint {
     public synchronized static void removeClient(Session session){
         clientWaitList.remove(session);
     }
+
 }

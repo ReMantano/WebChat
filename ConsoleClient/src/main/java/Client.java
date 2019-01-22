@@ -41,8 +41,8 @@ public class Client {
 		String message = sc.nextLine();
 
 		JSONObject jObject = new JSONObject();
-		jObject.put("Size","1");
-		jObject.put("Index","0");
+		jObject.put("size","1");
+		jObject.put("index","0");
 
 		while(!message.equals("\\exit")) {
 			if(message.length() > 0) {
@@ -59,15 +59,16 @@ public class Client {
 			text = text.substring(1);
 			String[] array = text.split(" ");
 			try {
-				object.put("Command", array[0].toUpperCase());
-				object.put("Status", array[1].toUpperCase());
-				object.put("Name", array[2].toUpperCase());
+				object.put("command", array[0].toUpperCase());
+				object.put("profile", array[1].toUpperCase());
+				object.put("name", array[2].toUpperCase());
+				System.out.println(object.toJSONString());
 			}catch (IndexOutOfBoundsException e){
 				System.out.println("Неверная команда");
 			}
 		}else{
-			object.put("Command","TEXT");
-			object.put("Message",text);
+			object.put("command","TEXT");
+			object.put("text",text);
 		}
 	}
 
